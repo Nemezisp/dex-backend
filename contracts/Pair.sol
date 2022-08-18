@@ -80,6 +80,13 @@ contract Pair is ERC20 {
         IERC20(s_secondToken).transfer(to, secondAmountToTransfer);
     }
 
+    function getRatesPerLiquidityToken() public view returns (address firstToken, uint256 firstTokenRate, address secondToken, uint256 secondTokenRate) {
+        uint256 totalSupply = totalSupply();
+        (uint256 firstTokenAmount, uint256 secondTokenAmount) = getTokenAmounts();
+
+        return (s_firstToken, 1000000000000000000*firstTokenAmount/totalSupply, s_secondToken, 1000000000000000000*secondTokenAmount/totalSupply);
+    }
+
     function getTokenAmounts() public view returns (uint256 firstTokenAmount, uint256 secondTokenAmount) {
         return (ERC20(s_firstToken).balanceOf(address(this)), ERC20(s_secondToken).balanceOf(address(this)));
     }

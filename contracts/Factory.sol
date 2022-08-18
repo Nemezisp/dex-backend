@@ -41,6 +41,10 @@ contract Factory {
     }
 
     function getPairAddress(address firstToken, address secondToken) public view returns (address pairAddress) {
-        return s_pairs[firstToken][secondToken];
+        if (s_pairs[firstToken][secondToken] != address(0)) {
+            return s_pairs[firstToken][secondToken];
+        } else {
+            return address(0);
+        }
     }
 }

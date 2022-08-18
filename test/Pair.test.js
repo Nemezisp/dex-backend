@@ -11,6 +11,7 @@ const { assert, expect } = require("chai");
             await deployments.fixture(["all"]);
             tokenA = await ethers.getContract("TokenA", deployer);
             tokenB = await ethers.getContract("TokenB", deployer);
+            router = await ethers.getContract("Router", deployer)
             factory = await ethers.getContract("Factory", deployer);
             const createTx = await factory.createPair(tokenA.address, tokenB.address)
             const createReceipt = await createTx.wait(1)
@@ -71,6 +72,21 @@ const { assert, expect } = require("chai");
                 await expect(pair.transferTo(deployer, tokenA.address, tokenTransferAmount)).to.be.revertedWith(
                     "Pair__OnlyRouterCanRequestTransfers"
                 );
+            })
+        })
+
+        describe("getRatesPerLiquidityToken", function() {
+            it("returns correct rates", async function() {
+                const tokenAAddLiquidityAmount = ethers.utils.parseEther("1000")
+                const tokenBAddLiquidityAmount = ethers.utils.parseEther("1000")
+                await tokenA.approve(router.address, tokenAAddLiquidityAmount)
+                await tokenB.approve(router.address, tokenBAddLiquidityAmount)
+                await router.addLiquidity(tokenA.address, tokenB.address, tokenAAddLiquidityAmount, tokenBAddLiquidityAmount)
+                const response = await pair.getRatesPerLiquidityToken()
+                const firstTokenRate = response[1]
+                const secondTokenRate = response[3]
+                assert.equal(ethers.utils.formatEther(firstTokenRate), 1)
+                assert.equal(ethers.utils.formatEther(secondTokenRate), 1)
             })
         })
     });
